@@ -1,10 +1,11 @@
-baseURL = "http://localhost:1313/"
+baseURL = "https://blog.teralem.com"
+# baseURL = "http://localhost:1313/"
 # [en, zh-cn, fr, ...] determines default content language
 defaultContentLanguage = "zh-cn"
 # language code
 languageCode = "zh-cn"
 title = "teralem's blog"
-description = "This is My New Hugo Site"
+description = ""
 # Change the default theme to be use when building the site with Hugo
 theme = "FixIt"
 
