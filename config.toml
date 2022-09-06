@@ -1,0 +1,65 @@
+baseURL = "http://localhost:1313/"
+# [en, zh-cn, fr, ...] determines default content language
+defaultContentLanguage = "zh-cn"
+# language code
+languageCode = "zh-cn"
+title = "teralem's blog"
+description = "This is My New Hugo Site"
+# Change the default theme to be use when building the site with Hugo
+theme = "FixIt"
+
+[params]
+  # FixIt theme versionW
+  version = "0.2.X"
+  [params.cookieconsent]
+    enable = false
+  [params.page]
+    pageStyle = "wide"
+  [params.header.title]
+      logo = ""
+      name = "teralem's blog"
+  [params.footer]
+    since = 2022
+  [params.githubCorner]
+    enable = true
+    permalink = "https://github.com/renfei147"
+    title = "View my GitHub"
+    position = "right"
+  [params.social]
+    Email = "teralem@outlook.com"
+    RSS = true
+[menu]
+  [[menu.main]]
+    identifier = "posts"
+    # you can add extra information before the name (HTML format is supported), such as icons
+    pre = ""
+    # you can add extra information after the name (HTML format is supported), such as icons
+    post = ""
+    name = "文章"
+    url = "/posts/"
+    # title will be shown when you hover on this menu link
+    title = ""
+    weight = 1
+  [[menu.main]]
+    identifier = "categories"
+    pre = ""
+    post = ""
+    name = "分类"
+    url = "/categories/"
+    title = ""
+    weight = 2
+  [[menu.main]]
+    identifier = "tags"
+    pre = ""
+    post = ""
+    name = "标签"
+    url = "/tags/"
+    title = ""
+    weight = 3
+
+# Markup related configuration in Hugo
+[markup]
+  # Syntax Highlighting (https://gohugo.io/content-management/syntax-highlighting)
+  [markup.highlight]
+    # false is a necessary configuration (https://github.com/hugo-fixit/FixIt/issues/43)
+    noClasses = false
