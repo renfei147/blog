@@ -5,7 +5,7 @@ defaultContentLanguage = "zh-cn"
 # language code
 languageCode = "zh-cn"
 title = "teralem's blog"
-description = ""
+description = "Just a blog."
 # Change the default theme to be use when building the site with Hugo
 theme = "FixIt"
 
@@ -16,9 +16,11 @@ theme = "FixIt"
     enable = false
   [params.page]
     pageStyle = "wide"
-  [params.header.title]
+  [params.header]
+    [params.header.title]
       logo = ""
       name = "teralem's blog"
+      subtitle = "This is My New Hugo Site"
   [params.footer]
     since = 2022
   [params.githubCorner]
@@ -29,6 +31,31 @@ theme = "FixIt"
   [params.social]
     Email = "teralem@outlook.com"
     RSS = true
+  [params.home]
+    # FixIt 0.2.0 | NEW amount of RSS pages
+    rss = 10
+    # Home page profile
+  [params.home.profile]
+    enable = true
+    # Gravatar Email for preferred avatar in home page
+    gravatarEmail = "renfei8@live.cn"
+    # URL of avatar shown in home page
+    avatarURL = "/images/avatar.png"
+    # FixIt 0.2.7 | CHANGED title shown in home page (HTML format is supported)
+    title = ""
+    # subtitle shown in home page
+    subtitle = "Just a blog."
+    # whether to use typeit animation for subtitle
+    typeit = true
+    # whether to show social links
+    social = true
+    # FixIt 0.2.0 | NEW disclaimer (HTML format is supported)
+    disclaimer = ""
+  # Home page posts
+  [params.home.posts]
+    enable = true
+    # special amount of posts in each home posts page
+    paginate = 6
 [menu]
   [[menu.main]]
     identifier = "posts"
