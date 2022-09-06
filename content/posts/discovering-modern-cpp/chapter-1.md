@@ -38,8 +38,8 @@ seo:
 ---
 
 <!--more-->
-# 1.2 Variables
-## 1.2.3 Non-narrowing Initialization
+## 1.2 Variables
+### 1.2.3 Non-narrowing Initialization
 从C++11开始，使用大括号初始化数值类型能够起到防止隐式转换导致精度损失的作用，如：
 ```cpp
 int i1 = 3.14; // 正确
@@ -63,3 +63,20 @@ float u3 = {d2}; // 错误
 ```
 需要注意的是实测上面的许多例子在g++中并不会报error，而只会报warning；而clang对标准的实现比较严格，均会报error。
 
+## 1.6 Error Handling
+### 1.6.1 Assertions
+多多使用assert断言来测试程序。
+```cpp
+#define NDEBUG // 定义NDEBUG后可以忽略assert提高性能
+#include <cassert>
+```
+### 1.6.2 Execeptions
+`catch`捕获的异常最好使用引用传递，使用...来捕获所有类型的异常。
+```cpp
+try {
+} catch (e1_type &e1) {
+} catch (e2_type &e2) {
+} catch (...) {
+  // 在这里捕获所有异常
+}
+```
