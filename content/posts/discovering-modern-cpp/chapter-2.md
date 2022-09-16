@@ -340,7 +340,7 @@ C++11引入的右值引用等语言设施实现了移动语义。
 在C++14中，值类别有如下定义（引自cppreference）
 
     随着移动语义引入到 C++11 之中，值类别被重新进行了定义，以区别表达式的两种独立的性质：
-    * 拥有身份 (identity)：可以确定表达式是否与另一表达式指代同一实体，例如通过比较它们所标识的对象或函数的（直* 接或间接获得的）地址；
+    * 拥有身份 (identity)：可以确定表达式是否与另一表达式指代同一实体，例如通过比较它们所标识的对象或函数的（直接或间接获得的）地址；
     * 可被移动：移动构造函数、移动赋值运算符或实现了移动语义的其他函数重载能够绑定于这个表达式。
 
     * 拥有身份且不可被移动的表达式被称作左值 (lvalue) 表达式；
@@ -387,7 +387,7 @@ end of main
 
 从上面的代码中可以发现如果用右值引用引用一个右值，那么和用const引用引用一个右值一样，这一右值的生存期被延长到匹配该引用的生命期。但不同于const引用的是可以用右值引用修改原对象。
 
-const右值同样是存在的，只能引用右值且不能修改原对象，不过这玩意儿的应用场景比较少。
+const右值引用同样是存在的，只能引用右值且不能修改原对象，不过这玩意儿的应用场景比较少。
 
 到现在我们有了引用、const引用、右值引用、const右值引用四种引用类型，看起来非常混乱。我们通过下面的代码来研究一下这些类型在重载中的行为。
 
@@ -652,3 +652,133 @@ construct 2
 destruct 2
 ```
 可以发现没有悬垂引用。
+
+### 2.6.3 Constant Member Functions
+可以在成员函数声明的括号后加上`const`来限制此函数不能修改对象的状态。各种会导致对象状态被改变的操作都会被禁止，也不能调用没有用`const`修饰的成员函数。`const`对象只能调用其中用`const`修饰的成员函数。
+```cpp
+class ClassA {
+  public:
+    ClassA(int data)
+        : data(data) {
+    }
+    void set(int d) const {
+        data = d; // error
+    }
+    int &get1() const {
+        return data; // error
+    }
+    const int &get2() const {
+        func(); // error
+        return data;
+    }
+    void func() {
+    }
+
+  private:
+    int data;
+};
+```
+`const`是函数签名的一部分，可以同时定义`const`版本和非`const`版本。
+```cpp
+class ClassA {
+  public:
+    ClassA(int d)
+        : d(d) {
+    }
+    int &data() {
+        return d;
+    }
+    const int &data() const {
+        return d;
+    }
+
+  private:
+    int d;
+};
+int main() {
+    const ClassA a = ClassA(1);
+    const int &b = a.data(); // 如果没有const版本的data，data将无法调用
+    return 0;
+}
+```
+
+可以用`mutable`修饰成员变量，使其即使在`const`成员函数或者在`const`对象中也能修改，这可以用于实现缓存等，但总之尽可能不用。
+
+### 2.6.4 Reference-Qualified Members
+C++11引入了引用限定符，可以指定成员函数只能用对象的左值或右值调用。
+```cpp
+class ClassA {
+  public:
+    void f() & {
+        std::cout << "lvalue\n";
+    }
+    void f() && {
+        std::cout << "rvalue\n";
+    }
+};
+
+int main() {
+    ClassA a;
+    a.f();
+    std::move(a).f();
+    ClassA().f();
+}
+```
+输出
+```
+lvalue
+rvalue
+rvalue
+```
+这可以用来明确一些操作在右值上没有意义，或在知道自己是右值的情况下把自己的资源送到别处。
+
+## 2.7 Operator Overloading Design
+
+### 2.7.3 Member or Free Function
+大多数重载运算符既可以作为成员函数也可以作为自由函数。下面讨论一下区别。
+
+```cpp
+class complex {
+  public:
+    complex(double r = 0.0, double i = 0.0)
+        : r(r), i(i) {}
+    complex operator+(const complex &c2) const {
+        return complex(r + c2.r, i + c2.i);
+    }
+
+  private:
+    double r, i;
+};
+
+int main() {
+    complex a(1.0, 2.0);
+    complex b = a + 1.0;
+    complex c = 1.0 + a; // error
+}
+```
+如上，如果二元重载运算符是成员函数，那么只有第二个参数能够被隐式类型转换，但如果使用自由函数，那么两个参数都可以被隐式类型转换。如果第一个参数是基本类型，那么就只能用自由函数了。（一元重载运算符同样，只有自由函数才能将参数隐式类型转换。）
+
+改为自由函数实现：
+```cpp
+class complex {
+  public:
+    complex(double r = 0.0, double i = 0.0)
+        : r(r), i(i) {}
+    friend complex operator+(const complex &, const complex &);
+
+  private:
+    double r, i;
+};
+inline complex operator+(const complex &c1, const complex &c2) {
+    return complex(c1.r + c2.r, c1.i + c2.i);
+}
+int main() {
+    complex a(1.0, 2.0);
+    complex b = a + 1.0;
+    complex c = 1.0 + a;
+}
+```
+
+这里使用了友元访问私有变量，当然也可以用`real()`这样的接口访问。
+
+此外，使用自由函数的实现看上去也更加对称。
