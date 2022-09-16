@@ -110,8 +110,8 @@ try {
 ```
 
 ## 1.7 IO
-### 1.7.4 Ceneric Stream Concept
-对`istream``ostream``iostream`这些基类进行操作可以应用到各种具体的流上。
+### 1.7.4 Generic Stream Concept
+对`istream` `ostream` `iostream`这些基类进行操作可以应用到各种具体的流上。
 ### 1.7.5 Formatting
 C++流里控制输出格式的函数（或者叫IO manipulators）还是很丰富的，但好像没有展开说的必要了。
 ### 1.7.6 Dealing with I/O Errors
