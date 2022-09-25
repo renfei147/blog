@@ -12,8 +12,9 @@ comment: true
 weight: 0
 
 tags:
-
+- C++
 categories:
+- 《现代C++探秘》笔记
 
 
 hiddenFromHomePage: false
