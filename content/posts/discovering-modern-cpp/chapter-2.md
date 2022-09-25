@@ -326,7 +326,7 @@ std::vector<int> a = {1, 2, 3};
 
 从而实现了上一节中`initializer_list`的用法。
 
-但括号消除也会导致有时难以识别大括号中是构造函数的参数还是`initializer_list`。
+但括号消除也会导致有时难以识别大括号中是构造函数的参数还是`initializer_list`，在两者均可的情况下优先认为是`initializer_list`。
 
 最后，正如在第一章开头提到的，统一初始化中禁止数值类型的窄化（丢失精度）隐式类型转换。在成员初始化列表中也可以用大括号代替小括号来避免窄化隐式类型转换。
 
@@ -573,6 +573,8 @@ std::shared_ptr<Connection> connection(environment->createConnection(...), conne
 * 移动赋值函数
 * 析构函数
 
+这些函数的具体生成规则比前述的更为复杂，详见A.5。
+
 ## 2.6 Accessing Member Variables
 
 ### 2.6.1 Access Functions
@@ -782,3 +784,57 @@ int main() {
 这里使用了友元访问私有变量，当然也可以用`real()`这样的接口访问。
 
 此外，使用自由函数的实现看上去也更加对称。
+
+## A.4 Class Details
+### A.4.1 Pointer to Member
+C++支持**成员指针**，指向某个类中的某个类型的对象，使用**成员指针访问运算符** `.*` 与 `->*`来访问。
+```cpp
+class ClassA {
+  public:
+    int data;
+};
+int main() {
+    int ClassA::*p = &ClassA::data; // 指向ClassA中某个int类型的成员
+    ClassA a, *b = &a;
+    a.*p = 2;
+    std::cout << b->*p << '\n';
+}
+```
+
+## A.5 Method Generation
+编译器会自动生成如下函数：
+* 默认构造函数
+* 复制构造函数
+* 移动构造函数
+* 复制赋值函数
+* 移动赋值函数
+* 析构函数
+
+### A.5.1 Controlling the Generation
+C++11开始可以使用` = default`要求编译器生成具有默认行为的函数，使用` = delete`阻止编译器生成函数。下面的类只能被复制，不可被移动。
+```cpp
+class copy_only {
+  public:
+    copy_only() = default;
+    copy_only(const copy_only &) = default;
+    copy_only(copy_only &&) = delete;
+    copy_only &operator=(const copy_only &) = default;
+    copy_only &operator=(copy_only &&) = delete;
+    ~copy_only() = default;
+};
+```
+用` = default`或者` = delete`这声明的函数都会被认为是用户定义的（与写明函数体效果相同）。
+
+如果调用函数时匹配到了声明为` = delete`的函数，会直接产生编译错误而非寻找其他可行的重载。如上面的代码，我们把移动操作写明为` = delete`，这时移动会导致编译错误。但如果不把移动操作写明为` = delete`，则传入右值时会自动重载到const引用，导致实际发生的是复制操作。
+
+### A.5.2 Generation Rules
+这六个函数是否自动生成的完整规则较为复杂，其中摘录较为重要的三点：
+1. 如有任何用户定义的构造函数，默认构造函数都不会被生成
+2. 如果没有用户定义的析构函数，那么析构函数必定会被生成
+3. 如果用户定义了复制函数，那么对应的移动函数不会被生成；反之亦然
+
+### A.5.3 Pitfalls and Design Guides
+尽管规则复杂，但需要记住的是下面的设计规则：
+1. Rule of Five: 除了默认构造函数外的五个函数要么全部声明要么全部不声明。
+2. Rule of Zero: 如果类中用到的资源都已经以RAII的对象的形式使用（如`unique_ptr` `fstream`）了，那么五个函数都不用实现。
+3. Rule of Six: 对于这六个函数，尽量多声明(` = default`, ` = delete`)少实现
