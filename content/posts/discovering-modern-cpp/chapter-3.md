@@ -274,3 +274,153 @@ std::max<int>(1, 1.0);
 
 ### 3.1.6 Automatic return Type
 从C++14开始可以用`auto`自动推导函数的返回值类型（根据return的类型），这在函数模板和普通函数中均使用，不过在函数模板中更加实用。
+
+## 3.2 Namespaces and Function Lookup
+
+### 3.2.1 Namespaces
+内层命名空间的名称可以隐藏外层命名空间的名称。需要外层命名空间的名称时可以加上外层命名空间的名称来指代。在开头加上`::`表示从全局开始查找。
+```cpp
+void func() {
+    std::cout << "::func\n";
+}
+namespace c1 {
+    void func() {
+        std::cout << "::c1::func\n";
+    }
+    namespace c2 {
+        namespace c1 {}
+        void func() {
+            std::cout << "::c1::c2::func\n";
+        }
+        void test() {
+            func();
+            c1::func(); // error
+            ::c1::func();
+            ::func();
+        }
+    }
+}
+int main() {
+    c1::c2::test();
+    return 0;
+}
+```
+
+可以使用`using`在函数或命名空间（但不能在类中）中导入某个命名空间中的某个名称或所有名称。
+```cpp
+using std::cin, std::cout;
+using namespace std;
+```
+
+可以使用命名空间别名来更加方便地引用其他命名空间，尤其是嵌套命名空间。
+```cpp
+namespace a_long_namespace_name {
+    namespace another_long_namespace_name {
+        void func(){
+            std::cout <<"hello, world\n";
+        }
+    }
+}
+namespace a = a_long_namespace_name::another_long_namespace_name;
+```
+
+### 3.2.2 Argument-Dependent Lookup
+Argument-Dependent Lookup (ADL) 是C++在查找函数时的一个特殊特性：查找函数时会自动包括函数参数类型所在的命名空间，但不包括所在命名空间的上层命名空间，也不包括用`using`导入的名称。
+```cpp
+namespace c1 {
+    namespace c2{
+        class ClassA{
+          public:
+            int data;
+        };
+        void func1(ClassA a){
+            std::cout << "func1: "<<a.data << '\n';
+        }
+        void func2(){
+            std::cout << "func2: "<< '\n';
+        }
+    }
+    void func3(c2::ClassA a){
+        std::cout << "func3: "<<a.data << '\n';
+    }
+}
+int main() {
+    c1::c2::ClassA a{5};
+    func1(a);
+    func2(); // error
+    func3(a); // error
+    return 0;
+}
+```
+这一特性的实用性主要体现在运算符重载（否则就要`using`或者用`ns::operator+`这样的方法访问了）。
+
+除此之外还可以利用这一特性控制函数模板的匹配（这也是这一内容出现在第三章的原因）。
+```cpp
+namespace mat {
+    struct sparse_matrix {};
+    struct dense_matrix {};
+    struct uber_matrix {};
+
+    template <typename Matrix>
+    double one_norm(const Matrix &A) { ... }
+}
+namespace vec {
+    struct sparse_vector {};
+    struct dense_vector {};
+    struct uber_vector {};
+
+    template <typename Vector>
+    double one_norm(const Vector &A) { ... }
+}
+```
+
+### 3.2.3 Namespace Qualification or ADL
+假设我们想在一个函数模板中调用`std::swap`，但某一个类型提供了自己的`swap`函数，这时可以用下面的方法：
+```cpp
+class ClassA {
+  public:
+    ClassA(int data) : data(data) {}
+    friend void swap(ClassA &a, ClassA &b) {
+        std::cout << "called custom swap\n";
+        std::swap(a.data, b.data);
+    }
+  private:
+    int data;
+};
+template <typename T>
+void my_swap(T &a, T &b) {
+    using std::swap;
+    swap(a, b);
+}
+int main() {
+    ClassA a(1), b(2);
+    swap(a, b);
+    return 0;
+}
+```
+使用了`using std::swap;`后，`std::swap`和类型提供的`swap`（如果在某个命名空间里那么ADL会起作用）会同时成为候选对象，由于类型提供的`swap`参数类型更加精确，最后调用的是类型提供的`swap`。如果类型没有`swap`，那么就会调用`std::swap`。
+
+## 3.3 Class Templates
+在类模板中常用空结构体来做标记，如下面的`vector`模板标记了向量是行向量还是列向量。
+```cpp
+struct row_major {};
+struct col_major {};
+template <typename T = double, typename Orientation = col_major>
+class vector {
+    ...
+};
+```
+上面的代码同样展示了模板参数可以设置默认值，但即使所有模板均为默认值，也不能省略尖括号，即不能使用`vector`而应该使用`vector<>`。
+
+不同于函数的默认参数，模板的默认参数可以使用前面的参数，如：
+```cpp
+template <typename T, typename U = T>
+struct pair {
+    T first;
+    U second;
+}
+```
+上面的`pair`在没有指定`second`的类型时`second`的类型和`first`相同。
+
+
+

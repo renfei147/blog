@@ -59,6 +59,25 @@ int func(const ClassA &a) {
 }
 ```
 
+可以用`friend`直接在class内部定义函数体，这时定义的不是成员函数而是外部函数。
+```cpp
+class ClassA {
+  public:
+    ClassA(int data) : data(data) {}
+    friend void swap(ClassA &a, ClassA &b) {
+        std::cout << "called custom swap\n";
+        std::swap(a.data, b.data);
+    }
+  private:
+    int data;
+};
+int main() {
+    ClassA a(1), b(2);
+    swap(a, b);
+    return 0;
+}
+```
+
 ## 2.3 Setting Values: Constructors and Assignments
 ### 2.3.1 Constructors
 构造函数用于初始化一个对象。
