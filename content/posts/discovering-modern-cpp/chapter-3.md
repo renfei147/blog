@@ -273,7 +273,7 @@ std::max<int>(1, 1.0);
 ```
 
 ### 3.1.6 Automatic return Type
-从C++14开始可以用`auto`自动推导函数的返回值类型（根据return的类型），这在函数模板和普通函数中均使用，不过在函数模板中更加实用。
+从C++14开始可以用`auto`自动推导函数的返回值类型（根据return的类型），这在函数模板和普通函数中均适用，不过在函数模板中更加实用。
 
 ## 3.2 Namespaces and Function Lookup
 
@@ -412,7 +412,7 @@ class vector {
 ```
 上面的代码同样展示了模板参数可以设置默认值，但即使所有模板均为默认值，也不能省略尖括号，即不能使用`vector`而应该使用`vector<>`。
 
-不同于函数的默认参数，模板的默认参数可以使用前面的参数，如：
+不同于函数的默认参数，类的默认参数可以使用前面的参数，如：
 ```cpp
 template <typename T, typename U = T>
 struct pair {

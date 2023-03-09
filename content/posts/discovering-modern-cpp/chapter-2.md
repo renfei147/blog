@@ -201,7 +201,7 @@ class ClassB {
 int main() {
     ClassA a = 1;
     ClassA b = a;
-	ClassB c = 1; // Error
+	  ClassB c = 1; // Error
     ClassA d = c; // Error
     return 0;
 }
