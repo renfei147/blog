@@ -95,9 +95,9 @@ toc: true
 
 ## 代码块
 
-Pandoc 生成的 LaTex 源文件中的代码块默认是由 Pandoc 进行语法着色的。可以用 `--listings` 选项来使用 listings 宏包进行语法着色，再在自定义模板用 `\lstset` 就可以更加灵活地设置代码块的样式。
+Pandoc 生成的 LaTeX 源文件中的代码块默认是由 Pandoc 进行语法着色的。可以用 `--listings` 选项来使用 listings 宏包进行语法着色，再在自定义模板用 `\lstset` 就可以更加灵活地设置代码块的样式。
 
-注意 `listings` 宏包不支持 UTF-8，实测在引入 `ctex` 并使用 xelatex 引擎的情况下是可以在代码块中包含中文的。
+注意 `listings` 宏包不支持 UTF-8，但实测在引入 `ctex` 并使用 xelatex 引擎的情况下是可以在代码块中包含中文的。
 
 ## SVG
 
