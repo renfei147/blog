@@ -41,7 +41,7 @@ Markdown 编辑器直接导出的 pdf 文档的质量往往欠佳，直接写 La
 
 # 方法一：Pandoc
 
-Pandoc 是一个通用文档转换器，可以在各种文档格式之间转换。
+Pandoc 是一个非常强大的文档转换器，可以在各种文档格式之间转换。
 
 ## 基本用法
 
@@ -63,11 +63,11 @@ pandoc report.md -o report.tex -s
 pandoc report.md -o report.pdf --pdf-engine=xelatex
 ```
 
-在 pandoc 中标记为 ` ```{=tex}` 的代码块会被直接插入到 LaTeX 源文件中，这样就可以在 Markdown 中插入无法用 Markdown 表示的内容（即 raw attribute 功能）。
+可以直接在 Markdown 中使用 tex 命令，pandoc 会将其原样保留，这样就可以插入无法用 Markdown 表示的内容。如果觉得这样不够清晰，也可以使用 pandoc 的 generic raw attribute 功能， 把 tex 命令写在标记为 ` ```{=tex}` 的代码块中。
 
 ## 设置变量
 
-可以在 Markdown 文件开头加入 yaml 格式的 Metadata，这些 Metadata 会被用作模板的变量。典型的 Metadata 如下：
+在 Markdown 文件开头可以加入 yaml 格式的 Metadata，这些 Metadata 会被用作模板的变量。典型的 Metadata 如下：
 
 ```yaml
 ---
